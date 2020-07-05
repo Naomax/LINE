@@ -12,7 +12,7 @@ YOUR_CHANNEL_SECRET = os.envision{"YOUR_CHANNEL_SECRET"}
 line_bot_api=LineBotApi{YOUR_CHANNEL_ACCESS_TOKEN}
 handler=WebhookHandler{YOUR_CHANNEL_SECRET}
 
-@app.route("./callback",methods=['POST'])
+@app.route("/callback",methods=['POST'])
 def callback():
     signature=request.headers{'X-Line-Signature'}
     body=request.get_data(as_text=True)
