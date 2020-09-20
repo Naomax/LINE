@@ -20,14 +20,15 @@ train_count = 640        # 訓練データ数
 fi=open("input2.txt","r",encoding="utf-8")
 for row in fi:
     line=line+1
-x=[[-1]*dim_in for i in range(line)]
+x=[[0]*dim_in for i in range(line)]
 fi.close()
 fi=open("input2.txt","r",encoding="utf-8")
 length=len(dictionary_list)
 cnt=0
 for rowi in fi:  #行読み込み
     for j in range(dim_in): 
-        x[cnt][j]=-1 #入力初期化
+        x[cnt][j]=0 #入力初期化
+        i=1
     for i in range(min(15,len(rowi.split()))): #単語読み込み
             for id in range(length):# 辞書参照
                 if dictionary_list[id]==rowi.split()[i]:
@@ -40,12 +41,13 @@ for rowi in fi:  #行読み込み
 print(x)
 fi.close()
 cnt=0
-y=[[-1]*dim_in for i in range(line)]
+y=[[0]*dim_in for i in range(line)]
 fo=open("output2.txt","r",encoding="utf-8")
 length=len(dictionary_list)
 for rowo in fo:  #行読み込み
     for j in range(dim_out): 
-        y[cnt][j]=-1 #入力初期化
+        y[cnt][j]=0#入力初期化
+        i=1
     for i in range(min(dim_out,len(rowo.split()))): #単語読み込み
         for id in range(length):# 辞書参照
             if dictionary_list[id]==rowo.split()[i]:
@@ -96,8 +98,8 @@ for epoc in range(2000):                # 1000エポック
     np.random.shuffle(idxes)            # 確率的勾配降下法のため、エポックごとにランダムにシャッフルする
     error = 0                           # 二乗和誤差
     for idx in idxes:
-        y = forward(x[idx])       # 順方向で x から y を計算する
-        diff = y - y[idx]         # 訓練データとの誤差
-        error += diff ** 2              # 二乗和誤差に蓄積
+        y2 = forward(x[idx])       # 順方向で x から y を計算する
+        diff = y2 - y[idx]         # 訓練データとの誤差
+        error += np.linalg.det(diff) ** 2              # 二乗和誤差に蓄積
         backward(x[idx], diff)    # 誤差を学習
     print(error.sum())                  # エポックごとに二乗和誤差を出力。徐々に減衰して0に近づく。
