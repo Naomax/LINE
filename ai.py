@@ -11,6 +11,7 @@ id=0
 cnt=0
 line=0
 word_list=[0]*dim_in
+x_test_parse_id=[0]*dim_in
 dictionary_list=[]
 # 訓練データは x は -1～1、y は 2 * x ** 2 - 1
 with open("dictionary.txt","r",encoding="utf-8") as f:
@@ -94,7 +95,7 @@ def square_sum(arg):
     sum=0
     for i in range(len(arg)):
         sum=sum+np.square(arg[i])
-    print(sum,arg)
+    #print(sum,arg)
     return sum
 # メイン処理
 idxes = np.arange(train_count)          # idxes は 0～63
@@ -109,7 +110,7 @@ for epoc in range(2000):                # 1000エポック
     print(error.sum())		# エポックごとに二乗和誤差を出力。徐々に減衰して0に近づく。
     while True:
         x_test=input()
-        if x_test="おわり":
+        if x_test=="おわり":
             break
         #構文解析
         tagger=MeCab.Tagger("-Owakati")
