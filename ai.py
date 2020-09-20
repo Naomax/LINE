@@ -1,5 +1,6 @@
-import numpy as np
-
+import numpy as np 
+import MeCab
+ 
 dim_in = 15
               # 入力は1次元
 dim_out = 15           # 出力は1次元
@@ -28,12 +29,10 @@ cnt=0
 for rowi in fi:  #行読み込み
     for j in range(dim_in): 
         x[cnt][j]=0 #入力初期化
-        i=1
     for i in range(min(15,len(rowi.split()))): #単語読み込み
             for id in range(length):# 辞書参照
                 if dictionary_list[id]==rowi.split()[i]:
-                    word_list[j]=id
-                    x[cnt][i]=id
+                    x[cnt][i]=id/1000000
                     break
                 #print(id)
     print(cnt,line)
@@ -47,19 +46,18 @@ length=len(dictionary_list)
 for rowo in fo:  #行読み込み
     for j in range(dim_out): 
         y[cnt][j]=0#入力初期化
-        i=1
     for i in range(min(dim_out,len(rowo.split()))): #単語読み込み
         for id in range(length):# 辞書参照
             if dictionary_list[id]==rowo.split()[i]:
-                y[cnt][i]=id
+                y[cnt][i]=id/1000000
                 break
                 #print(id)
     print(cnt,line)
     cnt=cnt+1
 print(y)
 fo.close()
-
-
+ 
+ 
 #train_x = np.arange(-1, 1, 2 / train_count / dim_in).reshape((train_count, dim_in))
 #train_y = np.array([2 * x ** 2 - 1 for x in train_x]).reshape((train_count, dim_out))
 #print(train_x)
@@ -68,34 +66,35 @@ w1 = np.random.rand(hidden_count, dim_in) - 0.5
 w2 = np.random.rand(dim_out, hidden_count) - 0.5
 b1 = np.random.rand(hidden_count) - 0.5
 b2 = np.random.rand(dim_out) - 0.5
-
+ 
 # 活性化関数は ReLU
 def activation(x):
     return np.maximum(0, x)
-
+ 
 # 活性化関数の微分
 def activation_dash(x):
     return (np.sign(x) + 1) / 2
-
+ 
 # 順方向。学習結果の利用。
 def forward(x):
     return w2 @ activation(w1 @ x + b1) + b2
-
+ 
 # 逆方向。学習
 def backward(x, diff):
     global w1, w2, b1, b2
     v1 = (diff @ w2) * activation_dash(w1 @ x + b1)
     v2 = activation(w1 @ x + b1)
-
+ 
     w1 -= learn_rate * np.outer(v1, x)  # outerは直積
     b1 -= learn_rate * v1
     w2 -= learn_rate * np.outer(diff, v2)
     b2 -= learn_rate * diff
 def square_sum(arg):
-	sum=0
-	for i in range (len(arg)):
-		sum=sum+arg[i]**2
-	return sum
+    sum=0
+    for i in range(len(arg)):
+	  sum=sum+np.square(arg[i])
+    print(sum,arg)
+    return sum
 # メイン処理
 idxes = np.arange(train_count)          # idxes は 0～63
 for epoc in range(2000):                # 1000エポック
@@ -104,6 +103,6 @@ for epoc in range(2000):                # 1000エポック
     for idx in idxes:
         y2 = forward(x[idx])       # 順方向で x から y を計算する
         diff = y2 - y[idx]         # 訓練データとの誤差
-        error += np.square_sum(diff)** 2              # 二乗和誤差に蓄積
+        error += square_sum(diff)              # 二乗和誤差に蓄積
         backward(x[idx], diff)    # 誤差を学習
-    print(error.sum())                  # エポックごとに二乗和誤差を出力。徐々に減衰して0に近づく。
+    print(error.sum())		# エポックごとに二乗和誤差を出力。徐々に減衰して0に近づく。
