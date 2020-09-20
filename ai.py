@@ -91,7 +91,11 @@ def backward(x, diff):
     b1 -= learn_rate * v1
     w2 -= learn_rate * np.outer(diff, v2)
     b2 -= learn_rate * diff
-
+def square_sum(arg):
+	sum=0
+	for i in range (len(arg)):
+		sum=sum+arg[i]**2
+	return sum
 # メイン処理
 idxes = np.arange(train_count)          # idxes は 0～63
 for epoc in range(2000):                # 1000エポック
@@ -100,6 +104,6 @@ for epoc in range(2000):                # 1000エポック
     for idx in idxes:
         y2 = forward(x[idx])       # 順方向で x から y を計算する
         diff = y2 - y[idx]         # 訓練データとの誤差
-        error += np.linalg.det(diff) ** 2              # 二乗和誤差に蓄積
+        error += np.square_sum(diff)** 2              # 二乗和誤差に蓄積
         backward(x[idx], diff)    # 誤差を学習
     print(error.sum())                  # エポックごとに二乗和誤差を出力。徐々に減衰して0に近づく。
