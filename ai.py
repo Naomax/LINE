@@ -1,6 +1,7 @@
 import numpy as np 
 import MeCab
  
+denom=1000000 #denominator
 dim_in = 15
               # 入力は1次元
 dim_out = 15           # 出力は1次元
@@ -32,7 +33,7 @@ for rowi in fi:  #行読み込み
     for i in range(min(15,len(rowi.split()))): #単語読み込み
             for id in range(length):# 辞書参照
                 if dictionary_list[id]==rowi.split()[i]:
-                    x[cnt][i]=id/1000000
+                    x[cnt][i]=id/denom
                     break
                 #print(id)
     print(cnt,line)
@@ -49,7 +50,7 @@ for rowo in fo:  #行読み込み
     for i in range(min(dim_out,len(rowo.split()))): #単語読み込み
         for id in range(length):# 辞書参照
             if dictionary_list[id]==rowo.split()[i]:
-                y[cnt][i]=id/1000000
+                y[cnt][i]=id/denom
                 break
                 #print(id)
     print(cnt,line)
@@ -106,3 +107,41 @@ for epoc in range(2000):                # 1000エポック
         error += square_sum(diff)              # 二乗和誤差に蓄積
         backward(x[idx], diff)    # 誤差を学習
     print(error.sum())		# エポックごとに二乗和誤差を出力。徐々に減衰して0に近づく。
+    while True:
+        x_test=input()
+        if x_test="おわり":
+            break
+        #構文解析
+        tagger=MeCab.Tagger("-Owakati")
+        x_test_parse=tagger.parse(x_test)
+        with open("dictionary.txt","r",encoding="utf-8") as f:
+            content=f.readlines()
+            dictionary_list=[x.strip() for x in content]
+        #x_test_parse_id初期化
+        for j in range(dim_in):
+            x_test_parse_id[j]=0
+        for i in range(len(dictionary_list)):
+            for id in range(len(dictionary_list)):
+                if(x_test_parse[i]==dictionary_list[id]):
+                    x_test_parse_id[i]=id/1000000
+                else:
+                    with open("dictionary.txt","a",encoding="utf-8"):
+                        f.write(x_test_parse[i]+'\n')
+                        dictionary_list.append(x_test_parse[i])
+                        x_test_parse_id[i]=len(dictionary_list[i])/10000000
+        #dictionary_listのidを百万で割る
+        y3=forward(x_test_parse_id)
+        dictionary_list2=[]
+        for i in range(len(dictionary_list)):
+            dictionary_list2.append(dictionary_list[i]/denom)
+        #近い数字探索
+        for i in range(len(dictionary_list2)):
+            min=abs(y3[i]-dictionary_list2[0])
+            min_id=0
+            for j in range(len(dictionary_list2[j])):
+                min=abs(y3[i]-dictionary_list2[j])
+                min_id=j
+            y4=[]
+            y4.append(dictionary_list[min_id])
+        print(y4)
+
