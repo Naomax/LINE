@@ -92,7 +92,7 @@ def backward(x, diff):
 def square_sum(arg):
     sum=0
     for i in range(len(arg)):
-	  sum=sum+np.square(arg[i])
+        sum=sum+np.square(arg[i])
     print(sum,arg)
     return sum
 # メイン処理
