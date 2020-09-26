@@ -126,7 +126,7 @@ for epoc in range(2000):                # 1000エポック
                 if(x_test_parse[i]==dictionary_list[id]):
                     x_test_parse_id[i]=id/1000000
                 else:
-                    with open("dictionary.txt","a",encoding="utf-8"):
+                    with open("dictionary.txt","a",encoding="utf-8") as f:
                         f.write(x_test_parse[i]+'\n')
                         dictionary_list.append(x_test_parse[i])
                         x_test_parse_id[i]=len(dictionary_list[i])/10000000
