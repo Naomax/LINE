@@ -121,25 +121,37 @@ for epoc in range(2000):                # 1000エポック
         #x_test_parse_id初期化
         for j in range(dim_in):
             x_test_parse_id[j]=0
-        for i in range(len(dictionary_list)):
+        s2_list=[]
+        s2=""
+        for i in range(len(x_test_parse)):
+            if (x_test_parse[i]==" ") or (x_test_parse[i]=="　"):
+                s2_list.append(s2)
+                s2=""
+                continue
+            s2=s2+x_test_parse[i]   
+        for i in range(len(s2_list)):
+            flag=0
             for id in range(len(dictionary_list)):
-                if(x_test_parse[i]==dictionary_list[id]):
-                    x_test_parse_id[i]=id/1000000
-                else:
-                    with open("dictionary.txt","a",encoding="utf-8") as f:
-                        f.write(x_test_parse[i]+'\n')
-                        dictionary_list.append(x_test_parse[i])
-                        x_test_parse_id[i]=len(dictionary_list[i])/10000000
+                if(s2_list[i]==dictionary_list[id]):
+                    x_test_parse_id[i]=id/denom
+                    flag=1
+                    break
+            if flag==0:
+                with open("dictionary.txt","a",encoding="utf-8") as f:
+                    print(s2_list[i],dictionary_list[id])
+                    f.write(s2_list[i]+'\n')
+                    dictionary_list.append(s2_list[i])
+                    x_test_parse_id[i]=len(dictionary_list[i])/denom
         #dictionary_listのidを百万で割る
         y3=forward(x_test_parse_id)
         dictionary_list2=[]
         for i in range(len(dictionary_list)):
-            dictionary_list2.append(dictionary_list[i]/denom)
+            dictionary_list2.append(i/denom)
         #近い数字探索
-        for i in range(len(dictionary_list2)):
+        for i in range(dim_out):
             min=abs(y3[i]-dictionary_list2[0])
             min_id=0
-            for j in range(len(dictionary_list2[j])):
+            for j in range(len(dictionary_list2)):
                 min=abs(y3[i]-dictionary_list2[j])
                 min_id=j
             y4=[]
