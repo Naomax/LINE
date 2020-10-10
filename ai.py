@@ -1,9 +1,17 @@
+import keras
+from keras.datasets import mnist
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+from keras.optimizers import RMSprop
 import numpy as np 
 import MeCab
  
 denom=1000000 #denominator
-dim_in = 15
-              # 入力は1次元
+with open("dictionary.txt","r",encoding="utf-8") as f:
+    content = f.readlines()
+
+num_classes=content
+dim_in = 15              # 入力は1次元
 dim_out = 15           # 出力は1次元
 hidden_count = 1024     # 隠れ層のノードは1024個
 learn_rate = 0.001      # 学習率
@@ -14,12 +22,11 @@ word_list=[0]*dim_in
 x_test_parse_id=[0]*dim_in
 dictionary_list=[]
 # 訓練データは x は -1～1、y は 2 * x ** 2 - 1
-with open("dictionary.txt","r",encoding="utf-8") as f:
-    content = f.readlines()
+
 # you may also want to remove whitespace characters like `\n` at the end of each line
 dictionary_list = [x.strip() for x in content] 
 print(dictionary_list)
-train_count = 640        # 訓練データ数
+train_count = 33361        # 訓練データ数
 fi=open("input2.txt","r",encoding="utf-8")
 for row in fi:
     line=line+1
@@ -108,53 +115,55 @@ for epoc in range(2000):                # 1000エポック
         error += square_sum(diff)              # 二乗和誤差に蓄積
         backward(x[idx], diff)    # 誤差を学習
     print(error.sum())		# エポックごとに二乗和誤差を出力。徐々に減衰して0に近づく。
-    while True:
-        x_test=input()
-        if x_test=="おわり":
-            break
-        #構文解析
-        tagger=MeCab.Tagger("-Owakati")
-        x_test_parse=tagger.parse(x_test)
-        with open("dictionary.txt","r",encoding="utf-8") as f:
-            content=f.readlines()
-            dictionary_list=[x.strip() for x in content]
-        #x_test_parse_id初期化
-        for j in range(dim_in):
-            x_test_parse_id[j]=0
-        s2_list=[]
-        s2=""
-        for i in range(len(x_test_parse)):
-            if (x_test_parse[i]==" ") or (x_test_parse[i]=="　"):
-                s2_list.append(s2)
-                s2=""
-                continue
-            s2=s2+x_test_parse[i]   
-        for i in range(len(s2_list)):
-            flag=0
-            for id in range(len(dictionary_list)):
-                if(s2_list[i]==dictionary_list[id]):
-                    x_test_parse_id[i]=id/denom
-                    flag=1
-                    break
-            if flag==0:
-                with open("dictionary.txt","a",encoding="utf-8") as f:
-                    print(s2_list[i],dictionary_list[id])
-                    f.write(s2_list[i]+'\n')
-                    dictionary_list.append(s2_list[i])
-                    x_test_parse_id[i]=len(dictionary_list[i])/denom
-        #dictionary_listのidを百万で割る
-        y3=forward(x_test_parse_id)
-        dictionary_list2=[]
-        for i in range(len(dictionary_list)):
-            dictionary_list2.append(i/denom)
-        #近い数字探索
-        for i in range(dim_out):
-            min=abs(y3[i]-dictionary_list2[0])
-            min_id=0
-            for j in range(len(dictionary_list2)):
-                min=abs(y3[i]-dictionary_list2[j])
-                min_id=j
-            y4=[]
-            y4.append(dictionary_list[min_id])
-        print(y4)
+
+    if epoc==1999:
+        while True:
+            x_test=input()
+            if x_test=="おわり":
+                break
+            #構文解析
+            tagger=MeCab.Tagger("-Owakati")
+            x_test_parse=tagger.parse(x_test)
+            with open("dictionary.txt","r",encoding="utf-8") as f:
+                content=f.readlines()
+                dictionary_list=[x.strip() for x in content]
+            #x_test_parse_id初期化
+            for j in range(dim_in):
+                x_test_parse_id[j]=0
+            s2_list=[]
+            s2=""
+            for i in range(len(x_test_parse)):
+                if (x_test_parse[i]==" ") or (x_test_parse[i]=="　"):
+                    s2_list.append(s2)
+                    s2=""
+                    continue
+                s2=s2+x_test_parse[i]   
+            for i in range(len(s2_list)):
+                flag=0
+                for id in range(len(dictionary_list)):
+                    if(s2_list[i]==dictionary_list[id]):
+                        x_test_parse_id[i]=id/denom
+                        flag=1
+                        break
+                if flag==0:
+                    with open("dictionary.txt","a",encoding="utf-8") as f:
+                        print(s2_list[i],dictionary_list[id])
+                        f.write(s2_list[i]+'\n')
+                        dictionary_list.append(s2_list[i])
+                        x_test_parse_id[i]=len(dictionary_list[i])/denom
+            #dictionary_listのidを百万で割る
+            y3=forward(x_test_parse_id)
+            dictionary_list2=[]
+            for i in range(len(dictionary_list)):
+                dictionary_list2.append(i/denom)
+            #近い数字探索
+            for i in range(dim_out):
+                min=abs(y3[i]-dictionary_list2[0])
+                min_id=0
+                for j in range(len(dictionary_list2)):
+                    min=abs(y3[i]-dictionary_list2[j])
+                    min_id=j
+                y4=[]
+                y4.append(dictionary_list[min_id])
+            print(y4)
 
