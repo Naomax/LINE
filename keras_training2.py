@@ -1,4 +1,6 @@
 import numpy as np
+import MeCab
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -22,7 +24,8 @@ x = layers.Dense(64, activation="relu", name="dense_1")(inputs)
 x = layers.Dense(64, activation="relu", name="dense_2")(x)
 outputs = layers.Dense(dic_line, activation="softmax", name="predictions")(x)
 
-model = keras.Model(inputs=inputs, outputs=o1,o2,o3,o4,o5,o6,o7,o8,o9,o10,o11,o12,o13,o14,o15)
+model = keras.Model(inputs=inputs, outputs=outputs)
+
 
 #(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 #print(x_train)#28*28の二次元配列が70000個
@@ -45,6 +48,7 @@ tokenizer=Tokenizer()
 tokenizer.fit_on_texts(content)
 tokenizer.fit_on_texts(content2)
 sequence=tokenizer.texts_to_sequences(content)
+print(sequence)
 sequence2=tokenizer.texts_to_sequences(content2)
 #print(content)
 length=len(dictionary_list)
@@ -63,10 +67,9 @@ x_train=my_func(x_train)
 x_val=x_train[-3000:]
 x_train=x_train[:-3000]
 
-y_train=[[0]*dim_in for i in range(33361)]
+y_train=[ 0 for i in range(33361)]
 for i in range(33361):
-    for j in range(min(dim_in,len(sequence2[i]))):
-        y_train[i][j]=sequence2[i][j]
+        y_train[i]=sequence2[i][0]
 #y_train=my_func(y_train)
 y_train=np.array(y_train)
 y_train=my_func(y_train)
@@ -82,7 +85,7 @@ model.compile(
     # List of metrics to monitor
     metrics=[keras.metrics.SparseCategoricalAccuracy()],
 )
-
+"""
 #print("Fit model on training data")
 history = model.fit(
     x_train,
@@ -94,7 +97,20 @@ history = model.fit(
     # at the end of each epoch
     validation_data=(x_val, y_val),
 )
+"""
 
-#history.history
+string="こんにちは。君の名は何？"
+tagger=MeCab.Tagger("-Owakati")
+string_parse=tagger.parse(string)
+print(string)
+tokenizer.fit_on_texts(string_parse)
+print(string_parse)
+sequence3=tokenizer.texts_to_sequences(string_parse)
+print(sequence3)
+sequence3=np.array(sequence3)
+print(sequence3)
+sequence3=my_func(sequence3)
+predictions = model.predict(sequence3)
+print(predictions)
 #print(x_train,y_train)
 # Preprocess the data (these are NumPy arrays)
